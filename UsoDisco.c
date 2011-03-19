@@ -76,25 +76,27 @@ DIR *dp;
 struct dirent *sp;
 struct stat statbuf;
 
-dp= opendir(direct);
-if(dp!=NULL){
-while(sp=readdir(dp)){
-// por cada entrada deberia entrar al i-nodo para q me diga q tipo es y q accion tomar
-if(stat(sp->d_name,&statbuf)==-1){
-perror("Error al intentar acceder a los atributos de archivo");
-exit(1);
-}
-//if (strcmp(sp->d_name,".") !=0 && (strcmp(sp->d_name,"..") !=0)
-// Entrar 
-// Ver en statbuf  si es regular o dir
- if(I_ISDIR(statbuf.st_mode)){
- // enlistar nombre
-}else{
-// x= x+ st_blocks
-}
+ dp= opendir(direct);
+ if(dp!=NULL){
+   while(sp=readdir(dp)){
+     // por cada entrada deberia entrar al i-nodo para q me diga q tipo es y q accion tomar
+     if(stat(sp->d_name,&statbuf)==-1){
+       perror("Error al intentar acceder a los atributos de archivo");
+       exit(1);
+     }
+     //if (strcmp(sp->d_name,".") !=0 && (strcmp(sp->d_name,"..") !=0)
+     // Entrar 
+     // Ver en statbuf  si es regular o dir
+     if(S_ISDIR(statbuf.st_mode)){
+       // enlistar nombre 
+       printf("es directorio");
+     }else{
+       // x= x+ statbuf.st_blocks
+       printf("%d",statbuf.st_blocks);
+     }
 
-}
-}
+   }
+ }
 
 
 }
