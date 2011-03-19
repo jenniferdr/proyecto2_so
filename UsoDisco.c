@@ -24,13 +24,14 @@ typedef struct Reg{
 /* Funcion para crear una Lista
  * Regresa un apuntador a la lista creada
  */
-void crearLista(Lista * newList){
-
-    if((newList= (struct Lista*)malloc(sizeof(struct Reg)))==NULL)
+struct Lista* crearLista(){
+  struct Lista * newList;
+    if((newList= (struct Lista*)malloc(sizeof(struct Lista)))==NULL)
       perror("No se pudo Crear la lista:");
     newList->first= NULL ;
     newList->last=NULL;
     newList->numRegs=0;
+    return newList;
 }
 
 
