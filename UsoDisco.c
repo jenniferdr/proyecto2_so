@@ -5,6 +5,70 @@
 #include <dirent.h>
 #include <sys/stat.h>
 
+typedef struct Lista{
+  struct Reg *first;
+  struct Reg *last;
+  int numRegs;
+}Lista;
+
+/* Registros para guardar los nombres
+ * de los directorios a explorar
+ */ 
+typedef struct Reg{
+  char *nombre;
+  struct Reg *anterior;
+  struct Reg *next; 
+}Reg;
+
+
+/* Funcion para crear una Lista
+ * Regresa un apuntador a la lista creada
+ */
+void crearLista(Lista * newList){
+
+    if((newList= (struct Lista*)malloc(sizeof(struct Reg)))==NULL)
+      perror("No se pudo Crear la lista:");
+    newList->first= NULL ;
+    newList->last=NULL;
+    newList->numRegs=0;
+}
+
+
+/* Funcion que agrega la cadena de caracteres "nombre"
+ * en la lista "lista".
+ */ 
+  void agregarNombre( Lista *lista,char *nombre){
+    struct Reg *registro;
+    
+    if((registro= (struct Reg*)malloc(sizeof(struct Reg)))==NULL)
+      perror("No se pudo agregar el nombre a la lista:");
+    registro->next= NULL;
+    registro->nombre= nombre;
+
+    if(lista->first==NULL){
+      lista->first= registro;
+      lista->numRegs=1;
+      registro->anterior=NULL;
+    }else{
+
+      lista->numRegs++;
+      lista->last->next=registro;
+      registro->anterior=lista->last;
+    }
+    lista->last=registro;
+}
+
+/* Funcion que toma un nombre de la lista
+ * y luego lo elimina de ella
+ */
+char* obtenerNombre(struct Lista *lista){
+  char *nombre= lista->last->nombre;
+  struct Reg *aux= lista->last->anterior;
+  free(lista->last);
+  lista->last= aux;
+  return nombre;
+}
+
 int main(int argc, char **argv){
 
   int n=1; // Nivel de concurrencia 
@@ -50,8 +114,8 @@ int main(int argc, char **argv){
     {
       //Redirecconar la salida estandar
       int fd; 
-      fd = open(argv[i], O_CREAT|O_TRUNC|O_WRONLY, 7644);
-      //Verificar si lo creo// 
+      if((fd = open(argv[i], O_CREAT|O_TRUNC|O_WRONLY, 7644))==-1)
+	perror("Error al abrir archivo");
       dup2(fd, 1); 
       close(fd); 
     }
@@ -68,7 +132,7 @@ for(i=0; i<n; i++){
 	perror("Pipe:");
 	exit(1);
 	}
-}
+ }
 
 // Como sea soy el padre y digo que vere que hay en direct 
 
@@ -80,27 +144,27 @@ struct stat statbuf;
  if(dp!=NULL){
    while(sp=readdir(dp)){
      // por cada entrada deberia entrar al i-nodo para q me diga q tipo es y q accion tomar
-     if(stat(sp->d_name,&statbuf)==-1){
+     printf("%s\n",sp->d_name);
+      if(stat(sp->d_name,&statbuf)==-1){
        perror("Error al intentar acceder a los atributos de archivo");
        exit(1);
-     }
-     //if (strcmp(sp->d_name,".") !=0 && (strcmp(sp->d_name,"..") !=0)
-     // Entrar 
-     // Ver en statbuf  si es regular o dir
-     if(S_ISDIR(statbuf.st_mode)){
+      }
+      if (strcmp(sp->d_name,".") !=0 && (strcmp(sp->d_name,"..") !=0)){ 
+	  // Ver en statbuf  si es regular o dir
+	  if(S_ISDIR(statbuf.st_mode)){
        // enlistar nombre 
-       printf("es directorio");
+       printf("es directorio \n ");
      }else{
        // x= x+ statbuf.st_blocks
        printf("%d",statbuf.st_blocks);
-     }
+	  }
+	
+      }
+	
 
    }
  }
-
-
 }
-
 
 
 
