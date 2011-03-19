@@ -2,11 +2,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h> 
+#include <dirent.h>
+#include <sys/stat.h>
 
 int main(int argc, char **argv){
 
   int n=1; // Nivel de concurrencia 
-  char *direct= ".";
+  char *direct= "./";
   int op,i;
 
   opterr=0;
@@ -68,6 +70,31 @@ for(i=0; i<n; i++){
 	}
 }
 
+// Como sea soy el padre y digo que vere que hay en direct 
+
+DIR *dp;
+struct dirent *sp;
+struct stat statbuf;
+
+dp= opendir(direct);
+if(dp!=NULL){
+while(sp=readdir(dp)){
+// por cada entrada deberia entrar al i-nodo para q me diga q tipo es y q accion tomar
+if(stat(sp->d_name,&statbuf)==-1){
+perror("Error al intentar acceder a los atributos de archivo");
+exit(1);
+}
+//if (strcmp(sp->d_name,".") !=0 && (strcmp(sp->d_name,"..") !=0)
+// Entrar 
+// Ver en statbuf  si es regular o dir
+ if(I_ISDIR(statbuf.st_mode)){
+ // enlistar nombre
+}else{
+// x= x+ st_blocks
+}
+
+}
+}
 
 
 }
