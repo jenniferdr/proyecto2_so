@@ -20,6 +20,7 @@ typedef struct Lista{
  */ 
 typedef struct Reg{
   char *nombre;
+  char *n_block;
   struct Reg *anterior;
   struct Reg *next; 
 }Reg;
@@ -38,6 +39,7 @@ struct Lista* crearLista(){
     return newList;
 }
 
+
 /* Funcion que agrega la cadena de caracteres "nombre"
  * en la Lista "lista".
  */ 
@@ -48,6 +50,31 @@ struct Lista* crearLista(){
       perror("No se pudo agregar el nombre a la lista:");
     registro->next= NULL;
     registro->nombre= nombre;
+
+    if(lista->first==NULL){
+      lista->first= registro;
+      lista->numRegs=1;
+      registro->anterior=NULL;
+    }else{
+
+      lista->numRegs++;
+      lista->last->next=registro;
+      registro->anterior=lista->last;
+    }
+    lista->last=registro;
+}
+
+/* Funcion que agrega la cadena de caracteres "nombre"
+ * y el numero de bloques "numB" en la Lista "lista".
+ */ 
+void agregarNombreBloq( Lista *lista,char *nombre,char *numB){
+    Reg *registro;
+    
+    if((registro= (Reg*)malloc(sizeof(struct Reg)))==NULL)
+      perror("No se pudo agregar el nombre a la lista:");
+    registro->next= NULL;
+    registro->nombre= nombre;
+    registro->n_block= numB;
 
     if(lista->first==NULL){
       lista->first= registro;
@@ -106,11 +133,13 @@ dp= opendir(directorio);
  }
 }
 
+Lista *dirListos;
+
 int main(int argc, char **argv){
 
   int n=1; // Nivel de concurrencia 
   char *direct= "./";
-  int op,i;
+  int op,i,salida;
 
   opterr=0;
   // Obtener argumentos y validarlos  
@@ -140,21 +169,17 @@ int main(int argc, char **argv){
      exit(EXIT_FAILURE);
     }
 
-  int redireccionar;
-  redireccionar= ((i=optind)<argc);
+  int setsalida;
+  setsalida= ((i=optind)<argc);
 
   int f;
   for(f = optind+1; f < argc; f++)
     printf ("Advertencia: Argumento ignorado: %s\n", argv[f]);
 
-  if(redireccionar)
-    {
-      //Redirecconar la salida estandar
-      int fd; 
-      if((fd = open(argv[i], O_CREAT|O_TRUNC|O_WRONLY, 7644))==-1)
-	perror("Error al abrir archivo");
-      dup2(fd, 1); 
-      close(fd); 
+  if(setsalida) {
+      //Cambiar la salida
+      if((salida = open(argv[i], O_CREAT|O_TRUNC|O_WRONLY, 7644))==-1)
+	perror("Error al abrir archivo");  
     }
 
 // Explorar el directorio pasado por parametro 
@@ -179,12 +204,12 @@ int main(int argc, char **argv){
      exit(1);
    }
    pipes[i]= (int*) malloc(sizeof(int)*4);
-   *(pipes[i]+1)= fd[0];
-   *(pipes[i]+2)= fd[1];
+   *(pipes[i]+1)= fd[1];
+   *(pipes[i]+2)= fd[0];
    *(pipes[i]+3)= 0;
    pid_t hijo=fork();
    if(hijo==0){
-     dup2(fd[0],0);
+      dup2(fd[0],0);
      dup2(fd2[1],1);
      close(fd2[0]);
      close(fd2[1]);
@@ -199,6 +224,9 @@ int main(int argc, char **argv){
      close(fd2[1]);
    }
  }
+
+ // Lista que contendra a los directorios listos
+ dirListos= crearLista();
 
  struct sigaction act;
  // sigset_t mask,oldmask;
@@ -241,7 +269,7 @@ while(directorios->numRegs!=0 || ocupados!=0){
     }
 
  }
-//Termina todo
+//Termina todo imprimir por consola y archivo en la variable salida
 }
 
 
