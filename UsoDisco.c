@@ -49,6 +49,7 @@ struct Lista* crearLista(){
     if((registro= (Reg*)malloc(sizeof(struct Reg)))==NULL)
       perror("No se pudo agregar el nombre a la lista:");
     registro->next= NULL;
+    registro.nombre=(char*) malloc(strlen(*nombre)+1);
     registro->nombre= nombre;
 
     if(lista->first==NULL){
