@@ -191,6 +191,24 @@ int main(int argc, char **argv){
      /* dup2(fd2[0],fd[1]); */
      /* close(fd2[0]); */
      /* close(fd2[1]); */
+
+   int hijo=fork();
+   printf("%d\n",hijo);
+   if(hijo==0){
+     printf("holappppp");
+     dup2(fd[0],0);
+     dup2(fd2[1],1);
+     close(fd2[0]);
+     close(fd2[1]);
+     close(fd[0]);
+     close(fd[1]);
+     execl("./hijo","./hijo",NULL);
+   }else{
+     *pipes[i]= hijo;
+     dup2(fd[1],fd[0]);
+     dup2(fd2[0],fd[1]);
+     close(fd2[0]);
+     close(fd2[1]);
    }
  }
 

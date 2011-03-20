@@ -98,6 +98,4 @@ dp= opendir(directorio);
 
 main(){
   printf("hola");
-
-
 }
