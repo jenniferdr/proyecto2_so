@@ -122,8 +122,11 @@ int main(int argc, char **argv){
   
 
   // Comenzar super codigo aqui!!
-
-int *pipes[n];
+  Lista *Prue;
+  crearLista(Prue);
+  agregarNombre(Prue, direct);
+  //printf("%d",Prue->numRegs);
+  int *pipes[n];
 
 // Crear Pipes pero esto da los descriptores de archivo donde no es...
 for(i=0; i<n; i++){
