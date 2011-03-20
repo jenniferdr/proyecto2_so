@@ -172,9 +172,7 @@ int main(int argc, char **argv){
    pipes[i]= (int*) malloc(sizeof(int)*3);
    *(pipes[i]+1)= fd[0];
    *(pipes[i]+2)= fd[1];
-
    pid_t hijo=fork();
-
    printf("%d\n",hijo);
    printf("Estamos vivos");
    if(hijo==0){
@@ -187,7 +185,8 @@ int main(int argc, char **argv){
      close(fd[1]);
      execl("./hijo","./hijo",NULL);
    }else{
-     *pipes[i]= hijo;
+     wait(0);
+      *pipes[i]= hijo;
      dup2(fd[1],fd[0]);
      dup2(fd2[0],fd[1]);
      close(fd2[0]);

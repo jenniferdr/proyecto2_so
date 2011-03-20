@@ -1,0 +1,14 @@
+
+#include <stdio.h>
+#include <signal.h>
+/******************Rutina principal ********************************/
+int main(){
+  void(*oldHandler)();//para guardar la direccion del manejador por defecto
+  printf("Puedo ser asesinado con Ctrl­C...\n");
+    sleep(3);
+      oldHandler = signal(SIGINT,SIG_IGN);// se ignora Ctrl­
+	printf("Estoy protegido contra el Ctrl­C...\n");
+	sleep(3);
+	    signal(SIGINT, oldHandler);// se restaura el manejador por defecto de Ctrl­C
+	      printf("Puedo ser asesinado con Ctrl­C...de nuevo\n");
+}
