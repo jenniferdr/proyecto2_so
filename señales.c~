@@ -1,0 +1,30 @@
+#include <stdio.h>
+#include <signal.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+
+
+void Trabajo();
+
+void  main()
+{
+  sigset_t mask,oldmask;
+  sigemptyset (&mask);
+  sigaddset (&mask, SIGUSR2);
+  int papa;
+  papa=getpid();
+  printf("%d",papa);
+  signal(SIGUSR2,Trabajo);
+  sigprocmask(SIG_BLOCK,&mask,&oldmask);
+  sigpause(&oldmask);
+  sigprocmask(SIG_UNBLOCK,&mask,NULL);
+
+}
+
+
+void Trabajo( int sig)
+{
+  printf("yupiii");
+}
+   

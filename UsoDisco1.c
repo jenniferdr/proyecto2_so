@@ -4,10 +4,7 @@
 #include <fcntl.h> 
 #include <dirent.h>
 #include <sys/stat.h>
-#include <sys/types.h>
-#include <string.h>
-#include <sys/wait.h>
-#include <errno.h>
+
 typedef struct Lista{
   struct Reg *first;
   struct Reg *last;
@@ -37,8 +34,9 @@ struct Lista* crearLista(){
     return newList;
 }
 
+
 /* Funcion que agrega la cadena de caracteres "nombre"
- * en la Lista "lista".
+ * en la lista "lista".
  */ 
   void agregarNombre( Lista *lista,char *nombre){
     Reg *registro;
@@ -69,33 +67,7 @@ char* obtenerNombre(struct Lista *lista){
   struct Reg *aux= lista->last->anterior;
   free(lista->last);
   lista->last= aux;
-  lista->numRegs--;
   return nombre;
-}
-
-void explorar(Lista *directorios,int *numBloques,char *directorio){
- DIR *dp;
- struct dirent *sp;
- struct stat statbuf;
-
-dp= opendir(directorio);
- if(dp!=NULL){
-   while(sp=readdir(dp)){
-     // por cada entrada 
-     if(stat(sp->d_name,&statbuf)==-1){
-       perror("Error al intentar acceder a los atributos de archivo");
-       exit(1);
-     }
-     if (strcmp(sp->d_name,".") !=0 && (strcmp(sp->d_name,"..") !=0)){ 
-       // Ver en statbuf  si es regular o dir
-       if(S_ISDIR(statbuf.st_mode)){
-	 agregarNombre(directorios,sp->d_name);
-       }else{
-	 numBloques= numBloques+ statbuf.st_blocks;
-       }
-     }
-   }
- }
 }
 
 int main(int argc, char **argv){
@@ -148,54 +120,59 @@ int main(int argc, char **argv){
       dup2(fd, 1); 
       close(fd); 
     }
+  
 
-// Explorar el directorio pasado por parametro 
- Lista *directorios= crearLista();
- int *numBloques=0;
+  // Comenzar super codigo aqui!!
+  Lista *Prue= crearLista();
+  agregarNombre(Prue, direct);
+  printf("holas %d %s",Prue->numRegs,Prue->first->nombre);
+  char *h;
+  h=obtenerNombre(Prue);
+  printf("chao %s",h);
+  int *pipes[n];
 
- explorar(directorios,numBloques,direct);
-
- /* Arreglo que contendra los pid de cada hijo y los descriptores
-  * de los pipes que utilizara para comunicarse con ellos */ 
- int *pipes[n];
-
- /* Crear los trabajadores y 
-  * Para cada uno crear un anillo de comunicacion */ 
- for(i=0; i<n; i++){
-   int fd[2];
-   int fd2[2];
-   if(pipe(fd)!=0 || pipe(fd2)!=0){
-     perror("Pipe:");
-     exit(1);
-   }
-   pipes[i]= (int*) malloc(sizeof(int)*3);
-   *(pipes[i]+1)= fd[0];
-   *(pipes[i]+2)= fd[1];
-   pid_t h;
-   h=fork();
-   printf("%d\n",h);
-   printf("soy hijo%d",i);
-   if(h==0){
-     printf("holappppp");
-     /* dup2(fd[0],0); */
-     /* dup2(fd2[1],1); */
-     /* close(fd2[0]); */
-     /* close(fd2[1]); */
-     /* close(fd[0]); */
-     /* close(fd[1]); */
-     execl("./h","./h",NULL);
-   }else{
-     wait(0);
-     /*  *pipes[i]= h; */
-     /* dup2(fd[1],fd[0]); */
-     /* dup2(fd2[0],fd[1]); */
-     /* close(fd2[0]); */
-     /* close(fd2[1]); */
-   }
+// Crear Pipes pero esto da los descriptores de archivo donde no es...
+for(i=0; i<n; i++){
+	pipes[i]= (int*) malloc(sizeof(int)*2);
+	if(pipe(pipes[i])!=0){
+	perror("Pipe:");
+	exit(1);
+	}
  }
 
+// Como sea soy el padre y digo que vere que hay en direct 
 
+DIR *dp;
+struct dirent *sp;
+struct stat statbuf;
+ int hijo; 
+hijo=fork();
+ if (hijo==0){
+   printf("siiiiii");
+ }
+ dp= opendir(direct);
+ if(dp!=NULL){
+   while(sp=readdir(dp)){
+     // por cada entrada 
+      if(stat(sp->d_name,&statbuf)==-1){
+       perror("Error al intentar acceder a los atributos de archivo");
+       exit(1);
+      }
+      if (strcmp(sp->d_name,".") !=0 && (strcmp(sp->d_name,"..") !=0)){ 
+	  // Ver en statbuf  si es regular o dir
+	  if(S_ISDIR(statbuf.st_mode)){
+       // enlistar nombre 
+       printf("es directorio \n ");
+     }else{
+       // x= x+ statbuf.st_blocks
+       printf("%d",statbuf.st_blocks);
+	  }
+	
+      }
+	
 
+   }
+ }
 }
 
 
