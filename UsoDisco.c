@@ -170,32 +170,12 @@ int main(int argc, char **argv){
    }
    pipes[i]= (int*) malloc(sizeof(int)*3);
    *(pipes[i]+1)= fd[0];
-   *(pipes[i]+2)= fd[1];
-   pid_t h;
-   h=fork();
-   printf("%d\n",h);
-   printf("soy hijo%d",i);
-   if(h==0){
-     printf("holappppp");
-     /* dup2(fd[0],0); */
-     /* dup2(fd2[1],1); */
-     /* close(fd2[0]); */
-     /* close(fd2[1]); */
-     /* close(fd[0]); */
-     /* close(fd[1]); */
-     execl("./h","./h",NULL);
-   }else{
-     wait(0);
-     /*  *pipes[i]= h; */
-     /* dup2(fd[1],fd[0]); */
-     /* dup2(fd2[0],fd[1]); */
-     /* close(fd2[0]); */
-     /* close(fd2[1]); */
+   *(pipes[i]+2)= fd[1]; 
 
    int hijo=fork();
    printf("%d\n",hijo);
    if(hijo==0){
-     printf("holappppp");
+     printf("holappppp\n");
      dup2(fd[0],0);
      dup2(fd2[1],1);
      close(fd2[0]);
@@ -204,6 +184,7 @@ int main(int argc, char **argv){
      close(fd[1]);
      execl("./hijo","./hijo",NULL);
    }else{
+     wait(0);
      *pipes[i]= hijo;
      dup2(fd[1],fd[0]);
      dup2(fd2[0],fd[1]);
@@ -214,7 +195,7 @@ int main(int argc, char **argv){
 
 
 
-}
+ }
 
 
 
