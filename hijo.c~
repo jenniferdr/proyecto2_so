@@ -1,0 +1,37 @@
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h> 
+#include <dirent.h>
+#include <sys/stat.h>
+
+void explorar(Lista *directorios,int *numBloques,char *directorio){
+ DIR *dp;
+ struct dirent *sp;
+ struct stat statbuf;
+
+dp= opendir(directorio);
+ if(dp!=NULL){
+   while(sp=readdir(dp)){
+     // por cada entrada 
+     if(stat(sp->d_name,&statbuf)==-1){
+       perror("Error al intentar acceder a los atributos de archivo");
+       exit(1);
+     }
+     if (strcmp(sp->d_name,".") !=0 && (strcmp(sp->d_name,"..") !=0)){ 
+       // Ver en statbuf  si es regular o dir
+       if(S_ISDIR(statbuf.st_mode)){
+	 agregarNombre(directorios,sp->d_name);
+       }else{
+	 numBloques= numBloques+ statbuf.st_blocks;
+       }
+     }
+   }
+ }
+}
+
+
+main(){
+  printf("hola");
+
+}

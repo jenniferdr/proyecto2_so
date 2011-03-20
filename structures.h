@@ -16,7 +16,7 @@ typedef struct Reg{
 /* Funcion para crear una Lista
  * Regresa un apuntador a la lista creada 12
  */
-extern void crearLista(Lista * newList);
+extern struct Lista* crearLista(Lista * newList);
 
 /* Funcion que agrega la cadena de caracteres "nombre"
  * en la lista "lista".

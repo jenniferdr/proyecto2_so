@@ -175,8 +175,7 @@ int main(int argc, char **argv){
    pid_t hijo=fork();
    printf("%d\n",hijo);
    printf("Estamos vivos");
-   if(hijo==0){
-     printf("holappppp\n");
+   if(hijo==0);
      dup2(fd[0],0);
      dup2(fd2[1],1);
      close(fd2[0]);
@@ -185,8 +184,7 @@ int main(int argc, char **argv){
      close(fd[1]);
      execl("./hijo","./hijo",NULL);
    }else{
-     wait(0);
-      *pipes[i]= hijo;
+     *pipes[i]= hijo;
      dup2(fd[1],fd[0]);
      dup2(fd2[0],fd[1]);
      close(fd2[0]);
