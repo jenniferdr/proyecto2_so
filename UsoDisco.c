@@ -4,6 +4,10 @@
 #include <fcntl.h> 
 #include <dirent.h>
 #include <sys/stat.h>
+#include<sys/types.h>
+#include<string.h>
+#include<sys/wait.h>
+#include<errno.h>
 
 typedef struct Lista{
   struct Reg *first;
@@ -168,10 +172,11 @@ int main(int argc, char **argv){
    pipes[i]= (int*) malloc(sizeof(int)*3);
    *(pipes[i]+1)= fd[0];
    *(pipes[i]+2)= fd[1];
-   int hijo=fork();
+   pid_t hijo=fork();
    printf("%d\n",hijo);
+   printf("Estamos vivos");
    if(hijo==0){
-     printf("holappppp");
+     printf("holappppp\n");
      dup2(fd[0],0);
      dup2(fd2[1],1);
      close(fd2[0]);
