@@ -24,13 +24,14 @@ typedef struct Reg{
 /* Funcion para crear una Lista
  * Regresa un apuntador a la lista creada
  */
-void crearLista(Lista * newList){
-
-    if((newList= (struct Lista*)malloc(sizeof(struct Reg)))==NULL)
+struct Lista* crearLista(){
+  struct Lista * newList;
+    if((newList= (struct Lista*)malloc(sizeof(struct Lista)))==NULL)
       perror("No se pudo Crear la lista:");
     newList->first= NULL ;
     newList->last=NULL;
     newList->numRegs=0;
+    return newList;
 }
 
 
@@ -38,9 +39,9 @@ void crearLista(Lista * newList){
  * en la lista "lista".
  */ 
   void agregarNombre( Lista *lista,char *nombre){
-    struct Reg *registro;
+    Reg *registro;
     
-    if((registro= (struct Reg*)malloc(sizeof(struct Reg)))==NULL)
+    if((registro= (Reg*)malloc(sizeof(struct Reg)))==NULL)
       perror("No se pudo agregar el nombre a la lista:");
     registro->next= NULL;
     registro->nombre= nombre;
@@ -146,8 +147,7 @@ struct stat statbuf;
  dp= opendir(direct);
  if(dp!=NULL){
    while(sp=readdir(dp)){
-     // por cada entrada deberia entrar al i-nodo para q me diga q tipo es y q accion tomar
-     printf("%s\n",sp->d_name);
+     // por cada entrada 
       if(stat(sp->d_name,&statbuf)==-1){
        perror("Error al intentar acceder a los atributos de archivo");
        exit(1);
