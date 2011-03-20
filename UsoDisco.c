@@ -4,10 +4,10 @@
 #include <fcntl.h> 
 #include <dirent.h>
 #include <sys/stat.h>
-#include<sys/types.h>
-#include<string.h>
-#include<sys/wait.h>
-#include<errno.h>
+#include <sys/types.h>
+#include <string.h>
+#include <sys/wait.h>
+#include <errno.h>
 
 typedef struct Lista{
   struct Reg *first;
@@ -49,7 +49,7 @@ struct Lista* crearLista(){
     if((registro= (Reg*)malloc(sizeof(struct Reg)))==NULL)
       perror("No se pudo agregar el nombre a la lista:");
     registro->next= NULL;
-    registro.nombre=(char*) malloc(strlen(*nombre)+1);
+    registro->nombre=(char*) malloc(strlen(*nombre)+1);
     registro->nombre= nombre;
 
     if(lista->first==NULL){
@@ -204,17 +204,7 @@ int main(int argc, char **argv){
      perror("Pipe:");
      exit(1);
    }
-<<<<<<< HEAD
-   pipes[i]= (int*) malloc(sizeof(int)*3);
-   *(pipes[i]+1)= fd[0];
-   *(pipes[i]+2)= fd[1]; 
 
-   int hijo=fork();
-   printf("%d\n",hijo);
-   if(hijo==0){
-     printf("holappppp\n");
-     dup2(fd[0],0);
-=======
    pipes[i]= (int*) malloc(sizeof(int)*4);
    *(pipes[i]+1)= fd[1];
    *(pipes[i]+2)= fd[0];
@@ -222,7 +212,7 @@ int main(int argc, char **argv){
    pid_t hijo=fork();
    if(hijo==0){
       dup2(fd[0],0);
->>>>>>> a954e8041f54f957b47b3eaa67658f4e3d62cdfe
+
      dup2(fd2[1],1);
      close(fd2[0]);
      close(fd2[1]);
@@ -262,9 +252,6 @@ int main(int argc, char **argv){
   //sigprocmask(SIG_UNBLOCK,&mask,NULL);
   
 
-<<<<<<< HEAD
- }
-=======
 // Asignar tareas
 while(directorios->numRegs!=0 || ocupados!=0){
   
@@ -288,8 +275,6 @@ while(directorios->numRegs!=0 || ocupados!=0){
  }
 //Termina todo imprimir por consola y archivo en la variable salida
 }
->>>>>>> a954e8041f54f957b47b3eaa67658f4e3d62cdfe
-
 
 
 
