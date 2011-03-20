@@ -4,6 +4,8 @@
 #include <fcntl.h> 
 #include <dirent.h>
 #include <sys/stat.h>
+#include<signal.h>
+#include<string.h>
 
 typedef struct Lista{
   struct Reg *first;
@@ -70,8 +72,14 @@ char* obtenerNombre(struct Lista *lista){
   return nombre;
 }
 
-void explorar(Lista *directorios,int *numBloques,char *directorio){
- DIR *dp;
+void tareaHijo(){
+  int n;
+  char directorio[64];
+  Lista *directorios;
+  scanf( "%s", directorio );
+  int numBloques=0;
+
+DIR *dp;
  struct dirent *sp;
  struct stat statbuf;
 
@@ -84,21 +92,48 @@ dp= opendir(directorio);
        exit(1);
      }
      if (strcmp(sp->d_name,".") !=0 && (strcmp(sp->d_name,"..") !=0)){ 
-       // Ver en statbuf  si es regular o dir
+       // Ver en statbuf si es regular o dir
        if(S_ISDIR(statbuf.st_mode)){
-	 agregarNombre(directorios,sp->d_name);
+	 if (strlen(sp->d_name)>=64){
+	   perror("Error: Nombre de archivo muy largo");
+	   exit(1);
+	   /* Recordar manejar este error*/}
+	  agregarNombre(directorios,sp->d_name);
        }else{
 	 numBloques= numBloques+ statbuf.st_blocks;
        }
      }
    }
  }
+
+ printf("%d\n",numBloques);
+ while(directorios->numRegs>0){
+   printf("%s\n",obtenerNombre(directorios));
+ }
+
 }
 
-
 main(){
-  printf("hola");
+  while(1){
+  struct sigaction act;
+  sigset_t mask,oldmask;
+  memset (&act, '\0', sizeof(act));
+  act.sa_sigaction=&tareaHijo;
+  
+  act.sa_flags=SA_SIGINFO;
+  if(sigaction(SIGUSR1,&act,NULL)<0)
+    {
+      perror("Error");
+      exit(1);
+    }
+  
+  sigemptyset (&mask);
+  sigaddset (&mask, SIGUSR1);
 
-exit(0);
+  sigprocmask(SIG_BLOCK,&mask,&oldmask);
+  sigpause(&oldmask);
+  sigprocmask(SIG_UNBLOCK,&mask,NULL);
+  kill(SIGUSR2,getppid());
+  }
 
 }

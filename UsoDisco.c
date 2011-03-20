@@ -74,6 +74,10 @@ char* obtenerNombre(struct Lista *lista){
   return nombre;
 }
 
+void atenderHijo(){
+  printf("atendido");
+}
+
 void explorar(Lista *directorios,int *numBloques,char *directorio){
  DIR *dp;
  struct dirent *sp;
@@ -82,14 +86,17 @@ void explorar(Lista *directorios,int *numBloques,char *directorio){
 dp= opendir(directorio);
  if(dp!=NULL){
    while(sp=readdir(dp)){
-     // por cada entrada 
+     // por cada entrada  
      if(stat(sp->d_name,&statbuf)==-1){
        perror("Error al intentar acceder a los atributos de archivo");
        exit(1);
      }
      if (strcmp(sp->d_name,".") !=0 && (strcmp(sp->d_name,"..") !=0)){ 
-       // Ver en statbuf  si es regular o dir
+       // Ver en statbuf si es regular o dir
        if(S_ISDIR(statbuf.st_mode)){
+	 if (strlen(sp->d_name)>=64){
+	   printf("Error: Nombre de archivo muy largo");
+	   exit(1);}
 	 agregarNombre(directorios,sp->d_name);
        }else{
 	 numBloques= numBloques+ statbuf.st_blocks;
@@ -156,9 +163,11 @@ int main(int argc, char **argv){
 
  explorar(directorios,numBloques,direct);
 
- /* Arreglo que contendra los pid de cada hijo y los descriptores
-  * de los pipes que utilizara para comunicarse con ellos */ 
+ /* Arreglo que contendra los pid de cada hijo, los descriptores
+  * de los pipes que utilizara para comunicarse con ellos
+  * y un indicador de si esta ocupado o no. */ 
  int *pipes[n];
+ int ocupados=0;
 
  /* Crear los trabajadores y 
   * Para cada uno crear un anillo de comunicacion */ 
@@ -169,16 +178,12 @@ int main(int argc, char **argv){
      perror("Pipe:");
      exit(1);
    }
-   pipes[i]= (int*) malloc(sizeof(int)*3);
+   pipes[i]= (int*) malloc(sizeof(int)*4);
    *(pipes[i]+1)= fd[0];
    *(pipes[i]+2)= fd[1];
-
+   *(pipes[i]+3)= 0;
    pid_t hijo=fork();
-
-   printf("%d\n",hijo);
-   printf("Estamos vivos");
    if(hijo==0){
-     printf("holappppp\n");
      dup2(fd[0],0);
      dup2(fd2[1],1);
      close(fd2[0]);
@@ -195,8 +200,48 @@ int main(int argc, char **argv){
    }
  }
 
+ struct sigaction act;
+ // sigset_t mask,oldmask;
+  memset (&act, '\0', sizeof(act));
+  act.sa_sigaction=&atenderHijo;
+  
+  act.sa_flags=SA_SIGINFO;
+  if(sigaction(SIGUSR2,&act,NULL)<0)
+    {
+      perror("Error");
+      exit(1);
+    }
+  
+  // sigemptyset (&mask);
+  // sigaddset (&mask, SIGUSR1);
 
+  // sigprocmask(SIG_BLOCK,&mask,&oldmask);
+  // sigpause(&oldmask);
+  //sigprocmask(SIG_UNBLOCK,&mask,NULL);
+  
 
+// Asignar tareas
+while(directorios->numRegs!=0 || ocupados!=0){
+  
+  if(ocupados<n && directorios->numRegs!=0)
+    {
+      // iterar a ver quien esta libre
+      int i;
+      for(i=0;i<n && ocupados<n && directorios->numRegs>0;i++)
+	{
+	  if (*(pipes[i]+3)=0){
+	    char * dir;
+	    dir=obtenerNombre(directorios);
+	    write(*(pipes[i]+2),dir, strlen(dir)+1);
+	    *(pipes[i]+3)=1;
+	    ocupados++;
+	    kill(SIGUSR1,*pipes[i]);
+	  }
+	}
+    }
+
+ }
+//Termina todo
 }
 
 
