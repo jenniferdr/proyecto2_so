@@ -256,7 +256,7 @@ int main(int argc, char **argv){
  dirListos= crearLista();
 
  printf("hasta aqui\n");
- sleep(10);
+ sleep(100);
 // Asignar tareas
 while(directorios->numRegs!=0 || ocupados!=0){
   printf("Rondas\n");
