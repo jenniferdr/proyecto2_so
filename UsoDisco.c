@@ -29,6 +29,8 @@ typedef struct Reg{
 /* Funcion para crear una Lista
  * Regresa un apuntador a la lista creada
  */
+ int ocupados=0;
+ int *pipes[n];
 struct Lista* crearLista(){
   struct Lista * newList;
     if((newList= (struct Lista*)malloc(sizeof(struct Lista)))==NULL)
@@ -102,6 +104,19 @@ char* obtenerNombre(struct Lista *lista){
 
 void atenderHijo(){
   printf("atendido");
+  int leer;
+  int i;
+  int numHijo=siginfo->si_pid;
+    for(i=0;i<n:i++)
+      {
+	if(*pipes[i]==numhijo)
+	  {
+	    leer=*(pipes[i]+1);
+	    *(pipes[i]+3)=0;
+	    ocupados--;
+	  }
+	printf("error no existe el hijo");
+	
 }
 
 void explorar(Lista *directorios,int *numBloques,char *directorio){
@@ -202,8 +217,8 @@ struct sigaction act;
  /* Arreglo que contendra los pid de cada hijo, los descriptores
   * de los pipes que utilizara para comunicarse con ellos
   * y un indicador de si esta ocupado o no. */ 
- int *pipes[n];
- int ocupados=0;
+
+
 
  /* Crear los trabajadores y 
   * Para cada uno crear un anillo de comunicacion */ 
@@ -221,7 +236,8 @@ struct sigaction act;
    *(pipes[i]+3)= 0;
    pid_t hijo=fork();
    if(hijo==0){
-      dup2(fd[0],0);
+      
+     dup2(fd[0],0);
 
      dup2(fd2[1],1);
      close(fd2[0]);
@@ -230,7 +246,7 @@ struct sigaction act;
      close(fd[1]);
      execl("./hijo","./hijo",NULL);
    }else{
-     wait(0);
+
      *pipes[i]= hijo;
      dup2(fd[1],fd[0]);
      dup2(fd2[0],fd[1]);
@@ -253,16 +269,18 @@ while(directorios->numRegs!=0 || ocupados!=0){
     {
       // iterar a ver quien esta libre
       int i;
-      for(i=0;i<n && ocupados<n && directorios->numRegs>0;i++)
+      for(i=0;i<n && ocupados<n && directorios->numRegs>0;i++) for(i=0;i<n && ocupados<n && directorios->numRegs>0;i++)
 	{
-	  if (*(pipes[i]+3)=0){
+	  if (*(pipes[i]+3)==0){
 	    char * dir;
 	    dir=obtenerNombre(directorios);
 	    write(*(pipes[i]+2),dir, strlen(dir)+1);
 	    *(pipes[i]+3)=1;
 	    ocupados++;
+	    
 	    printf("%d",*pipes[i]);
-	    kill(SIGUSR1,*pipes[i]);
+	    
+	    kill(*pipes[i],SIGUSR2);
 	   
 	  }
 	}

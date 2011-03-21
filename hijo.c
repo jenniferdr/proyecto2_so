@@ -110,7 +110,7 @@ dp= opendir(directorio);
  while(directorios->numRegs>0){
    printf("%s\n",obtenerNombre(directorios));
  }
- kill(SIGUSR2,getppid());
+ kill(getppid(),SIGUSR1);
 }
 
 main(){
@@ -127,8 +127,8 @@ main(){
       
     }
  
-  // while(1){
-  //}  
+   while(1){
+  }  
  
   
 }
