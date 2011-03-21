@@ -142,7 +142,7 @@ struct sigaction act;
   act.sa_sigaction=&atenderHijo;
   
   act.sa_flags=SA_SIGINFO;
-  if(sigaction(SIGUSR2,&act,NULL)<0)
+  if(sigaction(SIGUSR1,&act,NULL)<0)
     {
       perror("Error");
       exit(1);
@@ -198,7 +198,7 @@ struct sigaction act;
  int *numBloques=0;
 
  explorar(directorios,numBloques,direct);
- printf("%s", obtenerNombre(directorios));
+ 
  /* Arreglo que contendra los pid de cada hijo, los descriptores
   * de los pipes que utilizara para comunicarse con ellos
   * y un indicador de si esta ocupado o no. */ 
@@ -220,6 +220,7 @@ struct sigaction act;
    *(pipes[i]+2)= fd[0];
    *(pipes[i]+3)= 0;
    pid_t hijo=fork();
+   
    if(hijo==0){
       dup2(fd[0],0);
 
@@ -230,7 +231,6 @@ struct sigaction act;
      close(fd[1]);
      execl("./hijo","./hijo",NULL);
    }else{
-     wait(0);
      *pipes[i]= hijo;
      dup2(fd[1],fd[0]);
      dup2(fd2[0],fd[1]);
@@ -255,14 +255,15 @@ while(directorios->numRegs!=0 || ocupados!=0){
       int i;
       for(i=0;i<n && ocupados<n && directorios->numRegs>0;i++)
 	{
-	  if (*(pipes[i]+3)=0){
+	  if (*(pipes[i]+3)==0){
 	    char * dir;
 	    dir=obtenerNombre(directorios);
 	    write(*(pipes[i]+2),dir, strlen(dir)+1);
 	    *(pipes[i]+3)=1;
 	    ocupados++;
 	    printf("%d",*pipes[i]);
-	    kill(SIGUSR1,*pipes[i]);
+	    if((kill(*pipes[i],SIGUSR1))!=0)
+	      perror("Error:") ;
 	   
 	  }
 	}
