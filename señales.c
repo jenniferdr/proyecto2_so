@@ -8,15 +8,15 @@ static void Trabajo (int sig, siginfo_t *siginfo, void *context)
 {
   printf ("Sending PID: %ld, UID: %ld\n",
 	  (long)siginfo->si_pid, (long)siginfo->si_uid);
-
-  printf("yupiii");
+  
+  printf("yupiii\n");
 }
 
 int main()
 {
   struct sigaction act;
-  sigset_t mask,oldmask;
-  memset (&act, '\0', sizeof(act));
+
+
   act.sa_sigaction=&Trabajo;
   
   act.sa_flags=SA_SIGINFO;
@@ -32,13 +32,11 @@ int main()
       return 1;
     }
   
-  sigemptyset (&mask);
-  sigaddset (&mask, SIGUSR2);
+ 
+  while(1)
+    {
 
-  sigprocmask(SIG_BLOCK,&mask,&oldmask);
-  sigpause(&oldmask);
-  sigprocmask(SIG_UNBLOCK,&mask,NULL);
+    }
 
 }
 
-   

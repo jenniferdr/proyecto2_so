@@ -110,30 +110,25 @@ dp= opendir(directorio);
  while(directorios->numRegs>0){
    printf("%s\n",obtenerNombre(directorios));
  }
-
+ kill(SIGUSR2,getppid());
 }
 
 main(){
-  while(1){
+ 
   struct sigaction act;
-  sigset_t mask,oldmask;
-  memset (&act, '\0', sizeof(act));
+  memset (&act, '\0', sizeof(act)); 
+ 
   act.sa_sigaction=&tareaHijo;
   
   act.sa_flags=SA_SIGINFO;
   if(sigaction(SIGUSR1,&act,NULL)<0)
     {
       perror("Error");
-      exit(1);
+      
     }
+ 
+  // while(1){
+  //}  
+ 
   
-  sigemptyset (&mask);
-  sigaddset (&mask, SIGUSR1);
-
-  sigprocmask(SIG_BLOCK,&mask,&oldmask);
-  sigpause(&oldmask);
-  sigprocmask(SIG_UNBLOCK,&mask,NULL);
-  kill(SIGUSR2,getppid());
-  }
-
 }

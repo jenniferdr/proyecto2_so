@@ -4,10 +4,10 @@
 #include <fcntl.h> 
 #include <dirent.h>
 #include <sys/stat.h>
-#include<sys/types.h>
-#include<string.h>
-#include<sys/wait.h>
-#include<errno.h>
+#include <sys/types.h>
+#include <string.h>
+#include <sys/wait.h>
+#include <errno.h>
 
 typedef struct Lista{
   struct Reg *first;
@@ -136,6 +136,18 @@ Lista *dirListos;
 
 int main(int argc, char **argv){
 
+struct sigaction act;
+
+  memset (&act, '\0', sizeof(act));
+  act.sa_sigaction=&atenderHijo;
+  
+  act.sa_flags=SA_SIGINFO;
+  if(sigaction(SIGUSR2,&act,NULL)<0)
+    {
+      perror("Error");
+      exit(1);
+    }
+
   int n=1; // Nivel de concurrencia 
   char *direct= "./";
   int op,i,salida;
@@ -202,6 +214,7 @@ int main(int argc, char **argv){
      perror("Pipe:");
      exit(1);
    }
+
    pipes[i]= (int*) malloc(sizeof(int)*4);
    *(pipes[i]+1)= fd[1];
    *(pipes[i]+2)= fd[0];
@@ -209,6 +222,7 @@ int main(int argc, char **argv){
    pid_t hijo=fork();
    if(hijo==0){
       dup2(fd[0],0);
+
      dup2(fd2[1],1);
      close(fd2[0]);
      close(fd2[1]);
@@ -216,6 +230,7 @@ int main(int argc, char **argv){
      close(fd[1]);
      execl("./hijo","./hijo",NULL);
    }else{
+     wait(0);
      *pipes[i]= hijo;
      dup2(fd[1],fd[0]);
      dup2(fd2[0],fd[1]);
@@ -227,25 +242,9 @@ int main(int argc, char **argv){
  // Lista que contendra a los directorios listos
  dirListos= crearLista();
 
- struct sigaction act;
- // sigset_t mask,oldmask;
-  memset (&act, '\0', sizeof(act));
-  act.sa_sigaction=&atenderHijo;
-  
-  act.sa_flags=SA_SIGINFO;
-  if(sigaction(SIGUSR2,&act,NULL)<0)
-    {
-      perror("Error");
-      exit(1);
-    }
-  
-  // sigemptyset (&mask);
-  // sigaddset (&mask, SIGUSR1);
-
-  // sigprocmask(SIG_BLOCK,&mask,&oldmask);
-  // sigpause(&oldmask);
-  //sigprocmask(SIG_UNBLOCK,&mask,NULL);
-  
+ printf("hasta aqui");
+ 
+ // while(1){
 
 // Asignar tareas
 while(directorios->numRegs!=0 || ocupados!=0){
@@ -262,15 +261,17 @@ while(directorios->numRegs!=0 || ocupados!=0){
 	    write(*(pipes[i]+2),dir, strlen(dir)+1);
 	    *(pipes[i]+3)=1;
 	    ocupados++;
+	    printf("%d",*pipes[i]);
 	    kill(SIGUSR1,*pipes[i]);
+	   
 	  }
 	}
     }
 
  }
 //Termina todo imprimir por consola y archivo en la variable salida
+// }  
 }
-
 
 
 
