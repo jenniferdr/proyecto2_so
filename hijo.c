@@ -75,7 +75,7 @@ char* obtenerNombre(struct Lista *lista){
 }
 
 void tareaHijo(int sig){
-  printf("tarea del hijo \n"); 
+  int fd= open("tarea hijo",O_CREAT,666); 
  int n;
   char directorio[64];
   Lista *directorios;

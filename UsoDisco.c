@@ -259,7 +259,7 @@ int main(int argc, char **argv){
  sleep(10);
 // Asignar tareas
 while(directorios->numRegs!=0 || ocupados!=0){
-  printf("Rondas");
+  printf("Rondas\n");
   sleep(5);
   if(ocupados<n && directorios->numRegs!=0)
     {
@@ -271,12 +271,13 @@ while(directorios->numRegs!=0 || ocupados!=0){
 	    char * dir;
 	    dir=obtenerNombre(directorios);
 	    write(*(pipes[i]+2),dir, strlen(dir)+1);
-	    *(pipes[i]+3)=1;
-	    ocupados++;
-	    printf("%d\n",*pipes[i]);
-	    if((kill(*pipes[i],SIGUSR2))!=0)
-	      perror("Error:") ;
-	    kill(*pipes[i],SIGUSR1);
+	    if((kill(*pipes[i],SIGUSR2))!=0){
+	      perror("Error:");
+	    }else{
+	      *(pipes[i]+3)=1;
+	      ocupados++;
+	      printf("%d\n",*pipes[i]);
+	    }
 	   
 	  }
 	}
