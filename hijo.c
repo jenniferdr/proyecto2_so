@@ -1,12 +1,13 @@
-
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h> 
 #include <dirent.h>
 #include <sys/stat.h>
-#include<signal.h>
-#include<string.h>
+#include <sys/types.h>
+#include <string.h>
+#include <sys/wait.h>
+#include <errno.h>
 
 typedef struct Lista{
   struct Reg *first;
@@ -73,8 +74,9 @@ char* obtenerNombre(struct Lista *lista){
   return nombre;
 }
 
-void tareaHijo(){
-  int n;
+void tareaHijo(int sig){
+  printf("tarea del hijo \n"); 
+ int n;
   char directorio[64];
   Lista *directorios;
   scanf( "%s", directorio );
@@ -116,19 +118,19 @@ dp= opendir(directorio);
 
 main(){
  
-  struct sigaction act;
-  memset (&act, '\0', sizeof(act)); 
- 
-  act.sa_sigaction=&tareaHijo;
+  struct sigaction usr_action;
+  sigset_t block_mask;
+  pid_t child_id;
+
+  /* Establish the signal handler.  */
+  sigfillset (&block_mask);
+  usr_action.sa_handler =tareaHijo ;
+  usr_action.sa_mask = block_mask;
+  usr_action.sa_flags = 0;
+  sigaction (SIGUSR2, &usr_action, NULL);
   
-  act.sa_flags=SA_SIGINFO;
-  if(sigaction(SIGUSR1,&act,NULL)<0)
-    {
-      perror("Error");
-      
-    }
- 
    while(1){
+     
   }  
  
   

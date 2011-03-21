@@ -30,7 +30,7 @@ typedef struct Reg{
  * Regresa un apuntador a la lista creada
  */
  int ocupados=0;
- int *pipes[n];
+// int *pipes[n];
 struct Lista* crearLista(){
   struct Lista * newList;
     if((newList= (struct Lista*)malloc(sizeof(struct Lista)))==NULL)
@@ -102,9 +102,9 @@ char* obtenerNombre(struct Lista *lista){
   return nombre;
 }
 
-void atenderHijo(){
-  printf("atendido");
-  int leer;
+void atenderHijo(int sig){
+  printf("atendido\n");
+  /* int leer;
   int i;
   int numHijo=siginfo->si_pid;
     for(i=0;i<n:i++)
@@ -115,7 +115,7 @@ void atenderHijo(){
 	    *(pipes[i]+3)=0;
 	    ocupados--;
 	  }
-	printf("error no existe el hijo");
+	  printf("error no existe el hijo");*/
 	
 }
 
@@ -151,17 +151,15 @@ Lista *dirListos;
 
 int main(int argc, char **argv){
 
-struct sigaction act;
+  struct sigaction usr_action;
+  sigset_t block_mask;
+  pid_t child_id;
 
-  memset (&act, '\0', sizeof(act));
-  act.sa_sigaction=&atenderHijo;
-  
-  act.sa_flags=SA_SIGINFO;
-  if(sigaction(SIGUSR1,&act,NULL)<0)
-    {
-      perror("Error");
-      exit(1);
-    }
+  sigfillset (&block_mask);
+  usr_action.sa_handler = atenderHijo;
+  usr_action.sa_mask = block_mask;
+  usr_action.sa_flags = 0;
+  sigaction (SIGUSR1, &usr_action, NULL);
 
   int n=1; // Nivel de concurrencia 
   char *direct= "./";
@@ -217,7 +215,7 @@ struct sigaction act;
  /* Arreglo que contendra los pid de cada hijo, los descriptores
   * de los pipes que utilizara para comunicarse con ellos
   * y un indicador de si esta ocupado o no. */ 
-
+ int *pipes[n];
 
 
  /* Crear los trabajadores y 
@@ -243,6 +241,7 @@ struct sigaction act;
      close(fd2[1]);
      close(fd[0]);
      close(fd[1]);
+     printf("Voy a hacer exec");
      execl("./hijo","./hijo",NULL);
    }else{
      *pipes[i]= hijo;
@@ -256,11 +255,12 @@ struct sigaction act;
  // Lista que contendra a los directorios listos
  dirListos= crearLista();
 
- printf("hasta aqui");
- 
+ printf("hasta aqui\n");
+ sleep(10);
 // Asignar tareas
 while(directorios->numRegs!=0 || ocupados!=0){
-  
+  printf("Rondas");
+  sleep(5);
   if(ocupados<n && directorios->numRegs!=0)
     {
       // iterar a ver quien esta libre
@@ -273,10 +273,10 @@ while(directorios->numRegs!=0 || ocupados!=0){
 	    write(*(pipes[i]+2),dir, strlen(dir)+1);
 	    *(pipes[i]+3)=1;
 	    ocupados++;
-	    printf("%d",*pipes[i]);
-	    if((kill(*pipes[i],SIGUSR1))!=0)
+	    printf("%d\n",*pipes[i]);
+	    if((kill(*pipes[i],SIGUSR2))!=0)
 	      perror("Error:") ;
-	    kill(*pipes[i],SIGUSR2);
+	    kill(*pipes[i],SIGUSR1);
 	   
 	  }
 	}
