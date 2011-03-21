@@ -39,7 +39,6 @@ struct Lista* crearLista(){
     return newList;
 }
 
-
 /* Funcion que agrega la cadena de caracteres "nombre"
  * en la Lista "lista".
  */ 
@@ -49,7 +48,6 @@ struct Lista* crearLista(){
     if((registro= (Reg*)malloc(sizeof(struct Reg)))==NULL)
       perror("No se pudo agregar el nombre a la lista:");
     registro->next= NULL;
-    registro->nombre=(char*) malloc(strlen(*nombre)+1);
     registro->nombre= nombre;
 
     if(lista->first==NULL){
@@ -137,6 +135,18 @@ dp= opendir(directorio);
 Lista *dirListos;
 
 int main(int argc, char **argv){
+
+struct sigaction act;
+
+  memset (&act, '\0', sizeof(act));
+  act.sa_sigaction=&atenderHijo;
+  
+  act.sa_flags=SA_SIGINFO;
+  if(sigaction(SIGUSR2,&act,NULL)<0)
+    {
+      perror("Error");
+      exit(1);
+    }
 
   int n=1; // Nivel de concurrencia 
   char *direct= "./";
@@ -232,25 +242,9 @@ int main(int argc, char **argv){
  // Lista que contendra a los directorios listos
  dirListos= crearLista();
 
- struct sigaction act;
- // sigset_t mask,oldmask;
-  memset (&act, '\0', sizeof(act));
-  act.sa_sigaction=&atenderHijo;
-  
-  act.sa_flags=SA_SIGINFO;
-  if(sigaction(SIGUSR2,&act,NULL)<0)
-    {
-      perror("Error");
-      exit(1);
-    }
-  
-  // sigemptyset (&mask);
-  // sigaddset (&mask, SIGUSR1);
-
-  // sigprocmask(SIG_BLOCK,&mask,&oldmask);
-  // sigpause(&oldmask);
-  //sigprocmask(SIG_UNBLOCK,&mask,NULL);
-  
+ printf("hasta aqui");
+ 
+ // while(1){
 
 // Asignar tareas
 while(directorios->numRegs!=0 || ocupados!=0){
@@ -267,13 +261,16 @@ while(directorios->numRegs!=0 || ocupados!=0){
 	    write(*(pipes[i]+2),dir, strlen(dir)+1);
 	    *(pipes[i]+3)=1;
 	    ocupados++;
+	    printf("%d",*pipes[i]);
 	    kill(SIGUSR1,*pipes[i]);
+	   
 	  }
 	}
     }
 
  }
 //Termina todo imprimir por consola y archivo en la variable salida
+// }  
 }
 
 
