@@ -1,3 +1,4 @@
+
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -73,7 +74,6 @@ char* obtenerNombre(struct Lista *lista){
 }
 
 void tareaHijo(){
-  int fdi= open("Hello",O_CREAT,777);
   int n;
   char directorio[64];
   Lista *directorios;
@@ -111,11 +111,11 @@ dp= opendir(directorio);
  while(directorios->numRegs>0){
    printf("%s\n",obtenerNombre(directorios));
  }
- kill(getppid(),SIGUSR2);
+ kill(getppid(),SIGUSR1);
 }
 
 main(){
-  
+ 
   struct sigaction act;
   memset (&act, '\0', sizeof(act)); 
  
