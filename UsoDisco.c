@@ -111,7 +111,7 @@ void explorar(Lista *directorios,int *numBloques,char *directorio){
 
 dp= opendir(directorio);
  if(dp!=NULL){
-   while(sp=readdir(dp)){
+   while((sp=readdir(dp))!=NULL){
      // por cada entrada  
      if(stat(sp->d_name,&statbuf)==-1){
        perror("Error al intentar acceder a los atributos de archivo");
@@ -186,7 +186,7 @@ int main(int argc, char **argv){
  int *numBloques=0;
 
  explorar(directorios,numBloques,direct);
-
+ printf("%s", obtenerNombre(directorios));
  /* Arreglo que contendra los pid de cada hijo, los descriptores
   * de los pipes que utilizara para comunicarse con ellos
   * y un indicador de si esta ocupado o no. */ 
